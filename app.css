@@ -1,0 +1,53 @@
+body {
+    text-align: center;
+    margin-top: 15px;
+
+}
+
+h1,
+h2 {
+    margin: 20px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+div {
+
+    border-radius: 20px;
+    padding: 10px;
+    margin-left: 1%;
+    margin-right: 1%;
+    background-color: rgb(135, 135, 139);
+}
+
+input {
+    text-align: center;
+    margin-bottom: 5px;
+    padding: 15px;
+    border: 1px solid black;
+    color: black;
+    background-color: rgb(223, 238, 225);
+    border-radius: 5px;
+    size: 100px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+button {
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+
+}
+
+table {
+    border: 0px;
+    margin: auto;
+}
+
+label{
+    font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}

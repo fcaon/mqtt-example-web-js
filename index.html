@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="app.css">
+
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
+  <title>MQTT PAHO - Exemplo Caon</title>
+
+  <script type="text/javascript">
+
+    function connect() {
+      atualizaVariaveis()
+      // Set up the client
+      client = new Paho.MQTT.Client(hostname, Number(port), clientId);
+      console.info('Connecting to Server: Hostname: ', hostname, '. Port: ', port, '. Client ID: ', clientId);
+
+      // set callback handlers
+      client.onConnectionLost = onConnectionLost;
+      client.onMessageArrived = onMessageArrived;
+
+      // see client class docs for all the options
+      var options = {
+        timeout: 3,
+        onSuccess: onConnect, // after connected, subscribes
+        onFailure: onFail,    // useful for logging / debugging
+      };
+      // connect the client
+      client.connect(options);
+      console.info('Connecting...');
+    }
+
+    function onConnected(context) {
+
+    }
+
+    function onConnect(context) {
+      console.log("Client Connected");
+
+      // And subscribe to our topics	-- all with the same callback function
+      document.getElementById('statusConexao').style.backgroundColor = 'green';
+      inscreverTopico();
+    }
+
+    function inscreverTopico() {
+      var optionsSubs = { qos: 0, onSuccess: function (context) { console.log("subscribed to topic: ", topic); } }
+      client.subscribe(topic, optionsSubs);
+    }
+
+    function onMessageArrived(message) {
+      console.log('Topico ==> ', message.destinationName, ' ||| mensagem ==>> ', message.payloadString);
+      document.getElementById('msgPublishedTopoic').value = "";
+      document.getElementById('msgPublishedTopoic').value = message.destinationName;
+      document.getElementById('msgPublishedMQTT').value = "";
+      document.getElementById('msgPublishedMQTT').value = message.payloadString;
+    }
+
+
+    function onFail(context) {
+      console.log("Failed to connect ");
+      console.log(context);
+      document.getElementById('statusConexao').style.backgroundColor = 'red';
+      alert("Não foi possível conectar: " + context.errorCode + " " + context.errorMessage);
+    }
+
+    function onConnectionLost(responseObject) {
+      document.getElementById('statusConexao').style.backgroundColor = 'red';
+      if (responseObject.errorCode !== 0) {
+        console.log("Conexao perdida. Erro => " + responseObject.errorMessage);
+        console.log("Reconectando...");
+        connect();
+      }
+    }
+
+    function iniciarConexao() {
+      // Connect to MQTT broker
+      connect();
+    }
+
+    function alteraTopicoSub() {
+      console.log("txtTopicoSub => " + document.getElementById("txtTopicoSub").value + "   ||| Tópico antigo => " + topic);
+      if (document.getElementById("txtTopicoSub").value !== "") {
+        client.unsubscribe(topic);
+        topic = document.getElementById("txtTopicoSub").value;
+        inscreverTopico();
+      }
+    }
+
+    function atualizaVariaveis() {
+      hostname = document.getElementById('txtEnderecoBroker').value;
+      port = Number(document.getElementById('txtPortaBroker').value);
+      clientId = "mqtt_js_" + parseInt(Math.random() * 100000, 10);
+    }
+
+    function publicar() {
+      var textoEnviar = document.getElementById('txtMsgPub').value;
+      var topicoPublicar = document.getElementById('txtTopicoPub').value;
+
+      var message = new Paho.MQTT.Message(textoEnviar);
+      message.destinationName = topicoPublicar;
+      message.qos = 0;
+
+      client.send(message);
+    }
+
+    function desconectarMqtt() {
+      console.log("Conexão finalizada => ", hostname, ":", port)
+      client.disconnect();
+      document.getElementById('statusConexao').style.backgroundColor = 'red';
+    }
+
+  </script>
+
+</head>
+
+<body>
+  <div>
+    <h1>EXEMPLO MQTT PAHO - Fabiano Caon</h1>
+    <div>
+      <h2>-> Configuração de conexão <- </h2>
+          <table>
+            <tr>
+              <td>
+                <label>Endereço do Broker</label>
+                <input type="text" id="txtEnderecoBroker" placeholder="Informe o endereço do broker"
+                  value="test.mosquitto.org" />
+              </td>
+              <td>
+                <label>Porta de conexão</label>
+                <input type="text" id="txtPortaBroker" placeholder="Informe a porta de conexão do broker" value="8080" />
+              </td>
+              <td>
+                <button onclick="iniciarConexao()">Conectar MQTT</button>
+              </td>
+              <td>
+                <label class="statusConnection" id='statusConexao' style="background-color: red;">Status Conexão</label>
+              </td>
+              <td>
+                <button style="background-color: red;" onclick="desconectarMqtt()">Desconectar MQTT</button>
+              </td>
+            </tr>
+            <tr>
+              <th colspan="2">
+                <label>Tópico para subscrição</label>
+                <input type="text" id="txtTopicoSub" placeholder="Informe o tópico para subscrição" value="teste/caon" />
+                <button type="button" id="btntopicoSub" onclick="alteraTopicoSub()">Alterar Tópico</button>
+                </td>
+            </tr>
+          </table>
+    </div>
+    <div>
+      <h2>-Envio de mensagem-</h2>
+      <table>
+        <label>Dados de publicação</label>
+        <tr>
+          <th>
+            <label>Tópico em que será publicado</label>
+            <input type="text" id="txtTopicoPub" placeholder="Informe o tópico para publicar" value="teste/caon" />
+          </th>
+        </tr>
+        <tr>
+          <th>
+            <label>Mensagem a ser publicada</label>
+            <input type="text" id="txtMsgPub" placeholder="Escreva a mensagem" value="" size="60%" />
+            <button type="button" id="btntopicoPub" onclick="publicar()">Publicar</button>
+          </th>
+        </tr>
+      </table>
+    </div>
+    <div>
+      <h2>- Tópico de publicação da mensagem -</h2>
+      <input type="text" id="msgPublishedTopoic" placeholder="" disabled="disabled" size="100%" />
+      <h2>-Mensagem recebida no tópico MQTT-</h2>
+      <input type="text" id="msgPublishedMQTT" placeholder="" disabled="disabled" size="100%" />
+    </div>
+    <div align="left">
+      <h2> PORTAS DE CONEXÃO - SERVER MQTT TESTE</h2>
+      <h4>
+        1883 : MQTT, unencrypted, unauthenticated <br>
+        1884 : MQTT, unencrypted, authenticated <br>
+        8883 : MQTT, encrypted, unauthenticated <br>
+        8884 : MQTT, encrypted, client certificate required <br>
+        8885 : MQTT, encrypted, authenticated <br>
+        8886 : MQTT, encrypted, unauthenticated <br>
+        8887 : MQTT, encrypted, server certificate deliberately expired <br>
+        8080 : MQTT over WebSockets, unencrypted, unauthenticated <br>
+        8081 : MQTT over WebSockets, encrypted, unauthenticated <br>
+        8090 : MQTT over WebSockets, unencrypted, authenticated <br>
+        8091 : MQTT over WebSockets, encrypted, authenticated <br>
+      </h4>
+    </div>
+  </div>
+
+  <script>
+    var topic = document.getElementById('txtTopicoSub').value;
+    var tempoReconexao = 20;
+    var hostname = document.getElementById('txtEnderecoBroker').value;
+    var port = Number(document.getElementById('txtPortaBroker').value);
+    var clientId = "mqtt_js_" + parseInt(Math.random() * 100000, 10);
+  </script>
+
+</body>
+
+</html>

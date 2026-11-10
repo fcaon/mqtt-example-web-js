@@ -146,19 +146,19 @@
                 <input type="text" id="txtPortaBroker" placeholder="Informe a porta de conexão do broker" value="8080" />
               </td>
               <td>
-                <button onclick="iniciarConexao()">Conectar MQTT</button>
+                <button onclick="iniciarConexao()">Conectar broker</button>
               </td>
               <td>
                 <label class="statusConnection" id='statusConexao' style="background-color: red;">Status Conexão</label>
               </td>
               <td>
-                <button style="background-color: red;" onclick="desconectarMqtt()">Desconectar MQTT</button>
+                <button style="background-color: red;" onclick="desconectarMqtt()">Desconectar broker</button>
               </td>
             </tr>
             <tr>
               <th colspan="2">
                 <label>Tópico para subscrição</label>
-                <input type="text" id="txtTopicoSub" placeholder="Informe o tópico para subscrição" value="teste/caon" />
+                <input type="text" id="txtTopicoSub" placeholder="Informe o tópico para subscrição" value="teste/mqtt-js" />
                 <button type="button" id="btntopicoSub" onclick="alteraTopicoSub()">Alterar Tópico</button>
                 </td>
             </tr>
@@ -170,8 +170,8 @@
         <label>Dados de publicação</label>
         <tr>
           <th>
-            <label>Tópico em que será publicado</label>
-            <input type="text" id="txtTopicoPub" placeholder="Informe o tópico para publicar" value="teste/caon" />
+            <label>Tópico de publicação da mensagem</label>
+            <input type="text" id="txtTopicoPub" placeholder="Informe o tópico para publicar" value="teste/mqtt-js" />
           </th>
         </tr>
         <tr>
@@ -184,9 +184,9 @@
       </table>
     </div>
     <div>
-      <h2>- Tópico de publicação da mensagem -</h2>
+      <h2>- Tópico de publicação da informação -</h2>
       <input type="text" id="msgPublishedTopoic" placeholder="" disabled="disabled" size="100%" />
-      <h2>-Mensagem recebida no tópico MQTT-</h2>
+      <h2>-Informação recebida no tópico MQTT-</h2>
       <input type="text" id="msgPublishedMQTT" placeholder="" disabled="disabled" size="100%" />
     </div>
     <div align="left">

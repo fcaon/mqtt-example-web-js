@@ -7,7 +7,7 @@
   <link rel="stylesheet" type="text/css" href="app.css">
 
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js" type="text/javascript"></script>
   <title>MQTT PAHO - Exemplo Caon</title>
 
   <script type="text/javascript">
@@ -15,7 +15,7 @@
     function connect() {
       atualizaVariaveis()
       // Set up the client
-      client = new Paho.MQTT.Client(hostname, Number(port), clientId);
+      client = new Paho.Client(hostname, Number(port), clientId);
       console.info('Connecting to Server: Hostname: ', hostname, '. Port: ', port, '. Client ID: ', clientId);
 
       // set callback handlers
@@ -96,14 +96,27 @@
     }
 
     function publicar() {
-      var textoEnviar = document.getElementById('txtMsgPub').value;
-      var topicoPublicar = document.getElementById('txtTopicoPub').value;
+      let IdPub = "mqtt_pub" + parseInt(Math.random() * 100000, 10);
+      let clientPub = new Paho.Client(hostname, Number(port), IdPub);
+      let optionsPub = {
+        timeout: 10,
+        onSuccess: () => {
+          let textoEnviar = document.getElementById('txtMsgPub').value;
+          let topicoPublicar = document.getElementById('txtTopicoPub').value;
 
-      var message = new Paho.MQTT.Message(textoEnviar);
-      message.destinationName = topicoPublicar;
-      message.qos = 0;
+          let message = new Paho.Message(textoEnviar);
+          message.destinationName = topicoPublicar;
+          message.qos = 0;
 
-      client.send(message);
+          clientPub.send(message);
+          console.log("Mensagem publicada => ", textoEnviar)
+        }, // after connected, Send message
+        onFailure: () => {
+          console.log("Erro ao publicar mensagem => ", hostname, ":", port)
+          clientPub.disconnect();
+        },    // useful for logging / debugging
+      };
+      clientPub.connect(optionsPub);
     }
 
     function desconectarMqtt() {
